@@ -1,0 +1,36 @@
+
+
+{% extends 'base.html' %}
+
+{% from 'bootstrap5/form.html' import render_form %}
+
+{% block title %}
+    {{ title }}
+{% endblock title %}
+
+
+
+
+{% block content %}
+
+<div class="container-fluid m-lg-5">
+    <div class="container m-5 p-lg-5" style="align-items: center; justify-content: center; text-align: center;">
+        <h1  class="justify-content-center text-align-center">YouTube Video Downloader</h1>
+
+        <div class="form-control px-5 mt-3 pb-3">
+            {{ render_form(form) }}
+        </div>
+
+        <div class="playlist-btn mt-3 pt-2 justify-content-center">
+            <p class="text-muted">Want to download a single video?</p>
+            <a style="text-align: center;" class="btn btn-secondary btn-sm rounded-pill" href="{{ url_for('home') }}">Download Video</a>
+        </div>
+    </div>
+
+</div>
+
+
+
+
+
+{% endblock content %}

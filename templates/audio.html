@@ -1,12 +1,13 @@
 
+
 {% extends 'base.html' %}
 
 {% from 'bootstrap5/form.html' import render_form %}
 
-
 {% block title %}
     {{ title }}
 {% endblock title %}
+
 
 
 
@@ -18,8 +19,8 @@
             <div class="img-file align-items-center justify-content-center">
                 <img src="/static/images/yt-download.jpg" alt="">
             </div>
-            <h1>YouTube Video Download</h1>
-            <p>Enter Video URL in the form below to download video file.</p>
+            <h1>YouTube Audio Download</h1>
+            <p>Enter Video URL in the form below to extract audio from video file.</p>
         </div>
 
         <div class="hero-form">
@@ -28,12 +29,13 @@
             </div> 
         </div>
         <div class="playlist-btn mt-5 pt-2 justify-content-center">
-            <p class="text-muted">Want to download a playlist or Audio?</p>
-            <a style="text-align: center;" class="btn btn-outline-primary btn-sm rounded-pill me-2" href="{{ url_for('download_playlist') }}">Download Playlist</a>
-            <a style="text-align: center;" class="btn btn-secondary btn-sm rounded-pill ms-2" href="{{ url_for('download_audio') }}">Download Audio</a>
+            <p class="text-muted">Want to download a single video or playlist?</p>
+            <a style="text-align: center;" class="btn btn-outline-primary btn-sm rounded-pill me-2" href="{{ url_for('home') }}">Download Video</a>
+            <a style="text-align: center;" class="btn btn-secondary btn-sm rounded-pill ms-2" href="{{ url_for('download_playlist') }}">Download Playlist</a>
         </div>
 
     </div>
 </section>
+
 
 {% endblock content %}

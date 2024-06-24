@@ -27,9 +27,9 @@
             </a>
     
             <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-              <li><a href="{{ url_for('home') }}" class="nav-link px-2">Home</a></li>
-              <li><a href="#" class="nav-link px-2">Features</a></li>
-              <li><a href="#" class="nav-link px-2">Pricing</a></li>
+              <li><a href="{{ url_for('home') }}" class="nav-link px-2">Download Video</a></li>
+              <li><a href="{{ url_for('download_playlist') }}" class="nav-link px-2">Download Playlist</a></li>
+              <li><a href="{{ url_for('download_audio') }}" class="nav-link px-2">Download Audio</a></li>
               
               <li><a href="{{ url_for('about') }}" class="nav-link px-2">About</a></li>
               <li><a href="{{ url_for('contact') }}" class="nav-link px-2">Contact</a></li>
@@ -41,9 +41,13 @@
     
             <div class="right-nav">
               {% if current_user.is_authenticated %}
-              <button type="button" class="btn btn-light me-2">Logout</button>
+              <button type="button" class="btn btn-light me-2">
+                <a style="text-decoration: none;" href="{{ url_for('logout') }}">Logout</a>
+              </button>
               {% else %}
-              <button type="button" class="btn btn-light">Login</button>
+              <button type="button" class="btn btn-light me-2">
+                <a style="text-decoration: none;" href="{{ url_for('login') }}">Login</a>
+              </button>
               {% endif %}
             </div>
           </div>

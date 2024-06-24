@@ -33,6 +33,11 @@ class PlaylistForm(FlaskForm):
     submit  = SubmitField("Download")
 
 
+class AudioForm(FlaskForm):
+    url    = URLField("YouTube Video URL", validators=[DataRequired()], render_kw={'placeholder': 'Paste YouTube Video URL Here...'})
+    submit  = SubmitField("Download")
+
+
 class ContactForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired()])
     email = EmailField('Email Address', validators=[DataRequired()])

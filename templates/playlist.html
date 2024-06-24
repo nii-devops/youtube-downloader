@@ -23,14 +23,15 @@
             <p>Enter Playlist URL in the form below to download all videos in the Playlist.</p>
         </div>
 
-        <div class="hero-form">
+        <div class="hero-form mb-3">
             <div>
                 {{ render_form(form, button_size='xl rounded-pill w-25') }}
             </div> 
         </div>
-        <div class="playlist-btn mt-3 pt-2 justify-content-center">
-            <p class="text-muted">Want to download a single video?</p>
-            <a style="text-align: center;" class="btn btn-secondary btn-sm rounded-pill" href="{{ url_for('home') }}">Download Video</a>
+        <div class="playlist-btn mt-5 pt-2 justify-content-center">
+            <p class="text-muted">Want to download a single video or audio?</p>
+            <a style="text-align: center;" class="btn btn-outline-primary btn-sm rounded-pill me-2" href="{{ url_for('home') }}">Download Video</a>
+            <a style="text-align: center;" class="btn btn-secondary btn-sm rounded-pill ms-2" href="{{ url_for('download_audio') }}">Download Audio</a>
         </div>
 
     </div>

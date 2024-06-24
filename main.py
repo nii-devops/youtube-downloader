@@ -8,12 +8,9 @@ from flask_ckeditor import CKEditor
 from flask_gravatar import Gravatar
 from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user, login_required
 from flask_sqlalchemy import SQLAlchemy
-
 from werkzeug.security import generate_password_hash, check_password_hash
 # Import your forms from the forms.py
 from forms import  RegisterForm, LoginForm, URLForm, PlaylistForm, ContactForm, AudioForm
-from time import sleep
-from typing import List
 import pathlib
 # Import dotenv
 from dotenv import load_dotenv
@@ -177,9 +174,10 @@ def download_audio():
     return render_template('audio.html', title='Download Playlist', form=form)
 
 
-@app.route('/my-downloads/<int:user_id>')
+@app.route('/my-downloads')
 @login_required
-def downloads(user_id):
+def downloads():
+    user_id = current_user.id
     result =db.session.execute(db.select(DownloadedFile).where(DownloadedFile.user_id==user_id))
     downloads = result.scalars().all()
     return render_template('my-downloads.html', title='My Downloads', downloads=downloads)
@@ -226,7 +224,8 @@ def login():
 @app.route('/logout')
 @login_required
 def logout():
-    login_user()
+    if current_user.is_authenticated:
+        logout_user()
     return redirect(url_for('home'))
 
 

@@ -8,8 +8,8 @@ from flask_ckeditor import CKEditorField
 
 
 class RegisterForm(FlaskForm):
-    f_name      = StringField(label='First name(s)', validators=[DataRequired()])
-    l_name      = StringField(label='Last name', validators=[DataRequired()])
+    firstname      = StringField(label='First name(s)', validators=[DataRequired()])
+    lastname      = StringField(label='Last name', validators=[DataRequired()])
     email       = EmailField(label='Email', validators=[DataRequired()])
     password    = PasswordField(label='Password', validators=[Length(min=8), DataRequired(),
                                 EqualTo('password_2', message='Passwords must match')])

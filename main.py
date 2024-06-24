@@ -56,11 +56,11 @@ gravatar = Gravatar(app, size=100, rating='g', default='retro', force_default=Fa
 ########################
 
 # Create User DB Table
-class User(db.Model):
+class User(db.Model, UserMixin):
     id = db.Column(db.Integer, primary_key=True)
-    f_name = db.Column(db.String(50), nullable=False)
-    l_name = db.Column(db.String(50), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
+    firstname = db.Column(db.String(50), nullable=False)
+    lastname = db.Column(db.String(50), nullable=False)
+    email = db.Column(db.String(150), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
 
     # Create a relationship between User table and Downloaded File table
@@ -177,14 +177,49 @@ def download_audio():
     return render_template('audio.html', title='Download Playlist', form=form)
 
 
-@app.route('/register')
+@app.route('/register', methods=['get', 'post'])
 def register():
-    return render_template('register.html', title='Register')
+    form = RegisterForm()
+    if form.validate_on_submit():
+        email=form.email.data
+        passwd = form.password.data
+        new_user = User(
+            firstname=form.firstname.data,
+            lastname=form.lastname.data,
+            email=email,
+            password=generate_password_hash(passwd, method='scrypt', salt_length=16)
+        )
+        db.session.add(new_user)
+        db.session.commit()
+        flash(f"User with email '{email}' created successfully!", category='success')
+        return redirect(url_for('login'))
+    return render_template('register.html', title='Register', form=form)
 
 
-@app.route('/login')
+@app.route('/login', methods=['get', 'post'])
 def login():
-    return render_template('login.html', title='Login')
+    form = LoginForm()
+    if form.validate_on_submit():
+        passwd = form.password.data
+        result = db.session.execute(db.select(User).where(User.email == form.email.data)) 
+        user = result.scalar()
+        if user:
+            email=user.email
+            if check_password_hash(user.password, passwd):
+                login_user(user)
+                flash(f"Welcome {user.firstname} {user.lastname}", category='primary')
+                return redirect(url_for('home'))
+        flash(f"User with email {email} DOES NOT exist!", category='danger')  
+        return redirect(url_for('register'))  
+    return render_template('login.html', title='Login', form=form)
+
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    login_user()
+    return redirect(url_for('home'))
 
 
 @app.route('/about-us')

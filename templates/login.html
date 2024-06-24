@@ -12,20 +12,19 @@
 {% block content %}
 
 <div class="container">
-    <div class="row justify-content-center">
-      <div class="col-md-6">
+    <div style="text-align: center;" class="row justify-content-center mt-5">
+      <div class="col-md-6 mt-5">
         <div class="form-container">
-            <h2 class="text-center mb-4">Login</h2>
-            <div>
-                {{ form.csrf_token }}
-                {{ render_form(form, button_size='xl rounded-pill w-50') }}
+            <h2 class="text-center mb-4 mt-3">Login</h2>
+            <div class="mt-5">
+                {{ render_form(form, button_size='xl rounded-pill w-25') }}
             </div>
 
             <br>
             <hr>
             <div class="register-instead">
                 <h6>Do not have an account?</h6>
-                <a class="btn btn-sm btn-secondary rounded-pill" href="{{ url_for('register') }}">Sign Up</a>
+                <a class="btn btn-sm btn-outline-primary rounded-pill" href="{{ url_for('register') }}">Sign Up</a>
             </div>
         </div>
       </div>

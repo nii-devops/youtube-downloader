@@ -73,13 +73,13 @@ class User(db.Model, UserMixin):
         return f"User('{self.f_name}', '{self.l_name}', '{self.email}')"
 
 
-NOW = datetime.today().replace(microsecond=0)
+NOW = datetime.now()
 
 class DownloadedFile(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     filename = db.Column(db.String(200), nullable=False)
     url = db.Column(db.String(1000), nullable=False)
-    date = db.Column(db.DateTime, nullable=False, default=NOW)
+    date = db.Column(db.DateTime, nullable=False, default=NOW.replace(microsecond=0))
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
@@ -177,6 +177,14 @@ def download_audio():
     return render_template('audio.html', title='Download Playlist', form=form)
 
 
+@app.route('/my-downloads/<int:user_id>')
+@login_required
+def downloads(user_id):
+    result =db.session.execute(db.select(DownloadedFile).where(DownloadedFile.user_id==user_id))
+    downloads = result.scalars().all()
+    return render_template('my-downloads.html', title='My Downloads', downloads=downloads)
+
+
 @app.route('/register', methods=['get', 'post'])
 def register():
     form = RegisterForm()
@@ -256,6 +264,7 @@ def contact():
                                 f"\n\nHello {name}, \nWe have received your enquiry/message. \nOur staff will review and revert shortly.\nRegards... \n\nYT-DL Team")
         return redirect(url_for('home'))
     return render_template('contact.html', title='Contact Us', form=form)
+
 
 if __name__ == "__main__":
     app.run(debug=True)

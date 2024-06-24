@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% from 'bootstrap5/form.html' import render_form %}
+
+
+{% block title %}
+    {{ title }}
+{% endblock title %}
+
+
+
+{% block content %}
+
+<div class="container">
+    <div style="text-align: center;" class="row justify-content-center mt-5">
+      <div class="col-md-12 mt-5">
+        <div class="form-container">
+            <h2 class="text-center mb-4">My Downloads</h2>
+            <div class="mt-1">
+                {% if downloads %}
+                <table class="table table-striped">
+                    <thead class="table table-dark" >
+                      <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Video Title</th>
+                        <th scope="col">Video URL</th>
+                        <th scope="col">Time Downloaded</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                        {% for dl in downloads %}
+                      <tr>
+                        <th scope="row">{{ dl.id }}</th>
+                        <td>{{ dl.filename }}</td>
+                        <td><a href="{{ dl.url }}">{{ dl.url }}</a></td>
+                        <td>{{ dl.date }}</td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                  {% endif %}
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock content %}
+
+
+
+
+
+

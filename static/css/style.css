@@ -164,6 +164,9 @@ header {
     margin-top: 50px;
 }
 
+table .dl-table-head {
+    background-color: var(--brand-dark);
+}
 
 
 

@@ -33,5 +33,12 @@ class PlaylistForm(FlaskForm):
     submit  = SubmitField("Download")
 
 
+class ContactForm(FlaskForm):
+    name = StringField("Name", validators=[DataRequired()])
+    email = EmailField('Email Address', validators=[DataRequired()])
+    title = StringField("Message Topic", validators=[DataRequired()])
+    message = CKEditorField('Message', validators=[DataRequired()])
+    submit  = SubmitField("Send")
+
 
 

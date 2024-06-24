@@ -1,0 +1,28 @@
+
+
+
+{% extends 'base.html' %}
+
+{% from 'bootstrap5/form.html' import render_form %}
+
+
+{% block title %}
+    {{ title }}
+{% endblock title %}
+
+
+{% block content %}
+
+
+<div class="contact-container">
+    <div class="contact-form">
+        <h1>Contact Us</h1>
+        <hr>
+        <div class="contact-form-fields">
+            {{ ckeditor.load() }} {{ ckeditor.config(name='message'|safe ) }}
+            {{ render_form(form, button_size='xl rounded-pill w-25') }}
+        </div>
+    </div>
+</div>
+
+{% endblock content %}

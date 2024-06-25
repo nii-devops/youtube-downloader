@@ -37,6 +37,7 @@ login_manager.init_app(app)
 def load_user(user_id):
     return db.get_or_404(User, user_id)
 
+
 # SMTP CREDENTIALS
 gmail_smtp = ("smtp.gmail.com")
 port = 587
@@ -96,7 +97,6 @@ class Message(db.Model):
 
 with app.app_context():
     db.create_all()
-
 
 
 ##################################

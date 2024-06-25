@@ -1,8 +1,11 @@
 
 from pytube import YouTube, Playlist
 import os
+from io import BytesIO
+import io
+import zipfile
 from datetime import date, datetime
-from flask import Flask, render_template, redirect, url_for, flash
+from flask import Flask, render_template, redirect, url_for, flash, send_from_directory, send_file, Response, stream_with_context
 from flask_bootstrap import Bootstrap5
 from flask_ckeditor import CKEditor
 from flask_gravatar import Gravatar
@@ -100,6 +103,9 @@ with app.app_context():
 # <===    ROUTES    ===> #########
 # ################################
 
+
+"""
+
 @app.route('/', methods=['get', 'post'])
 def home():
     form = URLForm()
@@ -114,8 +120,20 @@ def home():
             # Get the highest resolution
             stream = yt.streams.get_highest_resolution()
 
-            # Download the video
+            # Create a BytesIO object to store the video content
+            buffer = BytesIO()
+            stream.stream_to_buffer(buffer)
+            buffer.seek(0)
+
+            # Generate a filename for the download
+            filename = f"{yt.title}.mp4"
+
+            # Download the video (when hosting locally)
             stream.download(output_path=DOWNLOAD_PATH)
+
+            flash(f"Downloaded '{yt.title}' Successfully!", category='success')
+
+            # If user is authenticated, save the download record
             if current_user.is_authenticated:
                 new_item = DownloadedFile(
                     filename=str(yt.title),
@@ -124,13 +142,65 @@ def home():
                 )
                 db.session.add(new_item)
                 db.session.commit()
-            flash(f"Downloaded '{yt.title}' Successfully!", category='success')
+
             return redirect(url_for('home'))
+
         except Exception as err:
             flash(f"An error occurred: {err}", category='danger')
+            return redirect(url_for('home'))
 
     return render_template('index.html', title='Home', form=form)
 
+"""
+
+
+
+@app.route('/', methods=['GET', 'POST'])
+def home():
+    form = URLForm()
+    if form.validate_on_submit():
+        try:
+            url = form.url.data
+
+            # Create YouTube object
+            yt = YouTube(url)
+
+            # Get the highest resolution
+            stream = yt.streams.get_highest_resolution()
+
+            # Create a BytesIO object to store the video content
+            buffer = BytesIO()
+            stream.stream_to_buffer(buffer)
+            buffer.seek(0)
+
+            # Generate a filename for the download
+            filename = f"{yt.title}.mp4"
+            
+            # If user is authenticated, save the download record
+            if current_user.is_authenticated:
+                new_item = DownloadedFile(
+                    filename=filename,
+                    url=url,
+                    user_id=current_user.id
+                )
+                db.session.add(new_item)
+                db.session.commit()
+
+            # Stream the file to the client as an attachment
+            return send_file(
+                buffer,
+                as_attachment=True,
+                download_name=filename,
+                mimetype='video/mp4'
+            )
+
+        except Exception as err:
+            flash(f"An error occurred: {err}", category='danger')
+            return redirect(url_for('home'))
+
+    return render_template('index.html', title='Home', form=form)
+
+"""
 
 @app.route('/download-playlist', methods=['get', 'post'])
 def download_playlist():
@@ -153,6 +223,76 @@ def download_playlist():
             flash(f"Error Downloading Playlist: {err}", category='danger')
     return render_template('playlist.html', title='Download Playlist', form=form)
 
+"""
+
+"""
+
+@app.route('/download-playlist', methods=['GET', 'POST'])
+def download_playlist():
+    form = PlaylistForm()
+    if form.validate_on_submit():
+        playlist_url = form.url.data
+        try:
+            playlist = Playlist(playlist_url)
+
+            def generate():
+                with zipfile.ZipFile(io.BytesIO(), 'w') as zf:
+                    for video in playlist.videos:
+                        try:
+                            stream = video.streams.get_highest_resolution()
+                            video_file = io.BytesIO()
+                            stream.stream_to_buffer(video_file)
+                            video_file.seek(0)
+                            
+                            # Create a safe filename
+                            safe_title = "".join([c for c in video.title if c.isalnum() or c in (' ', '-', '_')]).rstrip()
+                            zf.writestr(f"{safe_title}.mp4", video_file.getvalue())
+                        except Exception as e:
+                            print(f"Error downloading video {video.title}: {str(e)}")
+                    
+                    zf.seek(0)
+                    yield from zf
+
+            response = Response(generate(), mimetype='application/zip')
+            response.headers.set('Content-Disposition', 'attachment', filename=f'{playlist.title}.zip')
+            return response
+
+        except Exception as err:
+            flash(f"Error Downloading Playlist: {err}", category='danger')
+    return render_template('playlist.html', title='Download Playlist', form=form)
+
+"""
+
+
+app = Flask(__name__)
+
+@app.route('/download-playlist', methods=['GET', 'POST'])
+def download_playlist():
+    form = PlaylistForm()
+    if form.validate_on_submit():
+        playlist_url = form.url.data
+        try:
+            playlist = Playlist(playlist_url)
+
+            def generate():
+                for video in playlist.videos:
+                    stream = video.streams.get_highest_resolution()
+                    buffer = io.BytesIO()
+                    stream.stream_to_buffer(buffer)
+                    buffer.seek(0)
+                    yield buffer.read()
+
+            response = Response(stream_with_context(generate()), 
+                                content_type='application/octet-stream')
+            response.headers['Content-Disposition'] = f'attachment; filename="{playlist.title}.mp4"'
+            return response
+
+        except Exception as err:
+            flash(f"Error Downloading Playlist: {err}", category='danger')
+    return render_template('playlist.html', title='Download Playlist', form=form)
+
+
+"""
 
 @app.route('/download-audio', methods=['get', 'post'])
 def download_audio():
@@ -172,6 +312,42 @@ def download_audio():
         except Exception as err:
             flash(f"Error Downloading Playlist: {err}", category='danger')
     return render_template('audio.html', title='Download Playlist', form=form)
+
+"""
+
+
+@app.route('/download-audio', methods=['GET', 'POST'])
+def download_audio():
+    form = AudioForm()
+    if form.validate_on_submit():
+        url = form.url.data
+        try:
+            yt = YouTube(url)
+
+            # Filter audio stream and get the first one
+            audio_stream = yt.streams.filter(only_audio=True, abr="256kbps").first()
+
+            # Download the audio stream to a BytesIO object
+            buffer = io.BytesIO()
+            audio_stream.stream_to_buffer(buffer)
+            buffer.seek(0)
+
+            # Generate a safe filename
+            safe_title = "".join([c for c in yt.title if c.isalpha() or c.isdigit() or c==' ']).rstrip()
+            filename = f"{safe_title}.mp3"
+
+            # Send the file as an attachment
+            return send_file(
+                buffer,
+                as_attachment=True,
+                download_name=filename,
+                mimetype='audio/mpeg'
+            )
+
+        except Exception as err:
+            flash(f"Error Downloading Audio: {err}", category='danger')
+
+    return render_template('audio.html', title='Download Audio', form=form)
 
 
 @app.route('/my-downloads')

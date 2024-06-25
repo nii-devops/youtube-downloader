@@ -3,7 +3,7 @@ from pytube import YouTube, Playlist
 import os
 from io import BytesIO
 import io
-import zipfile
+#import zipfile
 from datetime import date, datetime
 from flask import Flask, render_template, redirect, url_for, flash, send_from_directory, send_file, Response, stream_with_context
 from flask_bootstrap import Bootstrap5
@@ -103,6 +103,46 @@ with app.app_context():
 # <===    ROUTES    ===> #########
 # ################################
 
+"""
+@app.route('/', methods=['get', 'post'])
+def home():
+    form = URLForm()
+    if form.validate_on_submit():
+        try:
+            url = form.url.data
+            DOWNLOAD_PATH = (pathlib.Path.home()/"Downloads")
+
+            # Create YouTube object
+            yt = YouTube(url)
+
+            # Get the highest resolution
+            stream = yt.streams.get_highest_resolution()
+
+            # Generate a filename for the download
+            filename = f"{yt.title}.mp4"
+
+            # Download the video (when hosting locally)
+            stream.download(output_path=DOWNLOAD_PATH, filename=filename)
+
+            flash(f"Downloaded '{filename}' Successfully!", category='success')
+
+            # If user is authenticated, save the download record
+            if current_user.is_authenticated:
+                new_item = DownloadedFile(
+                    filename=str(yt.title),
+                    url=url,
+                    user_id=current_user.id
+                )
+                db.session.add(new_item)
+                db.session.commit()
+
+            return redirect(url_for('home'))
+
+        except Exception as err:
+            flash(f"An error occurred: {err}", category='danger')
+            return redirect(url_for('home'))
+
+    return render_template('index.html', title='Home', form=form)
 
 """
 
@@ -151,56 +191,56 @@ def home():
 
     return render_template('index.html', title='Home', form=form)
 
+
+
+#
+# @app.route('/', methods=['GET', 'POST'])
+# def home():
+#     form = URLForm()
+#     if form.validate_on_submit():
+#         try:
+#             url = form.url.data
+#
+#             # Create YouTube object
+#             yt = YouTube(url)
+#
+#             # Get the highest resolution
+#             stream = yt.streams.get_highest_resolution()
+#
+#             # Create a BytesIO object to store the video content
+#             buffer = BytesIO()
+#             stream.stream_to_buffer(buffer)
+#             buffer.seek(0)
+#
+#             # Generate a filename for the download
+#             filename = f"{yt.title}.mp4"
+#
+#             # If user is authenticated, save the download record
+#             if current_user.is_authenticated:
+#                 new_item = DownloadedFile(
+#                     filename=filename,
+#                     url=url,
+#                     user_id=current_user.id
+#                 )
+#                 db.session.add(new_item)
+#                 db.session.commit()
+#
+#             # Stream the file to the client as an attachment
+#             return send_file(
+#                 buffer,
+#                 as_attachment=True,
+#                 download_name=filename,
+#                 mimetype='video/mp4'
+#             )
+#
+#         except Exception as err:
+#             flash(f"An error occurred: {err}", category='danger')
+#             return redirect(url_for('home'))
+#
+#     return render_template('index.html', title='Home', form=form)
+
 """
 
-
-
-@app.route('/', methods=['GET', 'POST'])
-def home():
-    form = URLForm()
-    if form.validate_on_submit():
-        try:
-            url = form.url.data
-
-            # Create YouTube object
-            yt = YouTube(url)
-
-            # Get the highest resolution
-            stream = yt.streams.get_highest_resolution()
-
-            # Create a BytesIO object to store the video content
-            buffer = BytesIO()
-            stream.stream_to_buffer(buffer)
-            buffer.seek(0)
-
-            # Generate a filename for the download
-            filename = f"{yt.title}.mp4"
-            
-            # If user is authenticated, save the download record
-            if current_user.is_authenticated:
-                new_item = DownloadedFile(
-                    filename=filename,
-                    url=url,
-                    user_id=current_user.id
-                )
-                db.session.add(new_item)
-                db.session.commit()
-
-            # Stream the file to the client as an attachment
-            return send_file(
-                buffer,
-                as_attachment=True,
-                download_name=filename,
-                mimetype='video/mp4'
-            )
-
-        except Exception as err:
-            flash(f"An error occurred: {err}", category='danger')
-            return redirect(url_for('home'))
-
-    return render_template('index.html', title='Home', form=form)
-
-"""
 
 @app.route('/download-playlist', methods=['get', 'post'])
 def download_playlist():
@@ -264,8 +304,6 @@ def download_playlist():
 """
 
 
-app = Flask(__name__)
-
 @app.route('/download-playlist', methods=['GET', 'POST'])
 def download_playlist():
     form = PlaylistForm()
@@ -294,6 +332,7 @@ def download_playlist():
 
 """
 
+
 @app.route('/download-audio', methods=['get', 'post'])
 def download_audio():
     form = AudioForm()
@@ -314,6 +353,7 @@ def download_audio():
     return render_template('audio.html', title='Download Playlist', form=form)
 
 """
+
 
 
 @app.route('/download-audio', methods=['GET', 'POST'])
@@ -442,7 +482,7 @@ def contact():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=8010)
 
 
 

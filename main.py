@@ -146,13 +146,12 @@ def home():
 
 """
 
-@app.route('/', methods=['get', 'post'])
+@app.route('/', methods=['GET', 'POST'])
 def home():
     form = URLForm()
     if form.validate_on_submit():
         try:
             url = form.url.data
-            DOWNLOAD_PATH = (pathlib.Path.home()/"Downloads")
 
             # Create YouTube object
             yt = YouTube(url)
@@ -160,18 +159,16 @@ def home():
             # Get the highest resolution
             stream = yt.streams.get_highest_resolution()
 
-            # Create a BytesIO object to store the video content
-            buffer = BytesIO()
+            # Generate a safe filename for the download
+            safe_title = "".join([c for c in yt.title if c.isalpha() or c.isdigit() or c==' ']).rstrip()
+            filename = f"{safe_title}.mp4"
+
+            # Create a BytesIO object to store the video data
+            buffer = io.BytesIO()
+
+            # Download the video to the BytesIO object
             stream.stream_to_buffer(buffer)
             buffer.seek(0)
-
-            # Generate a filename for the download
-            filename = f"{yt.title}.mp4"
-
-            # Download the video (when hosting locally)
-            stream.download(output_path=DOWNLOAD_PATH)
-
-            flash(f"Downloaded '{yt.title}' Successfully!", category='success')
 
             # If user is authenticated, save the download record
             if current_user.is_authenticated:
@@ -183,7 +180,13 @@ def home():
                 db.session.add(new_item)
                 db.session.commit()
 
-            return redirect(url_for('home'))
+            # Stream the file to the client
+            return send_file(
+                buffer,
+                as_attachment=True,
+                download_name=filename,
+                mimetype='video/mp4'
+            )
 
         except Exception as err:
             flash(f"An error occurred: {err}", category='danger')

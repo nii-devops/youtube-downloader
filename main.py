@@ -5,7 +5,7 @@ from io import BytesIO
 import io
 #import zipfile
 from datetime import date, datetime
-from flask import Flask, render_template, redirect, url_for, flash, send_from_directory, send_file, Response, stream_with_context
+from flask import Flask, render_template, redirect, url_for, flash, send_file, Response, stream_with_context
 from flask_bootstrap import Bootstrap5
 from flask_ckeditor import CKEditor
 from flask_gravatar import Gravatar
@@ -167,13 +167,14 @@ def home():
             buffer = io.BytesIO()
 
             # Download the video to the BytesIO object
-            stream.stream_to_buffer(buffer)
+            stream.stream_to_buffer(buffer=buffer)
+            #stream.stream_to_buffer(buffer)
             buffer.seek(0)
 
             # If user is authenticated, save the download record
             if current_user.is_authenticated:
                 new_item = DownloadedFile(
-                    filename=str(yt.title),
+                    filename=filename,
                     url=url,
                     user_id=current_user.id
                 )
